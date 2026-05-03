@@ -1,77 +1,122 @@
-# PyDracula - Modern GUI PySide6 / PyQt6
-# 
+# ParseTool
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate (Gumroad): https://gum.co/mHsRC
-> This interface is free for any use, but if you are going to use it commercially, consider helping to maintain this project and others with a donation by Gumroado at the link above. This helps to keep this and other projects active.
+Automotive ECU data analysis desktop application. Parse oscilloscope snapshots from MDF/MF4 log files, verify CAN bus CRC integrity, and match DBC signals against interface sheets.
 
-> **Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+Built with Python and tkinter. Dark/light theme support.
 
-# YouTube - Presentation And Tutorial
-Presentation and tutorial video with the main functions of the user interface.
-> 🔗 https://youtu.be/9DnaHg4M_AM
+## Features
 
-# Multiple Themes
-![PyDracula_Default_Dark](https://user-images.githubusercontent.com/60605512/112993874-0b647700-9140-11eb-8670-61322d70dbe3.png)
-![PyDracula_Light](https://user-images.githubusercontent.com/60605512/112993918-18816600-9140-11eb-837c-e7a7c3d2b05e.png)
+- **Snapshot** — Read OSC snapshot data from MDF/MF4 files, decode CAN signals (uint8/uint16/real32), export to Excel, and visualize waveforms in a popup plot window.
+- **CRC Check** — Validate CAN and CANFD log data integrity with CRC-8 (Profile 1) and CRC-16 (Profile 5) algorithms.
+- **CAN Matcher** — Parse DBC files and match CAN_IN / CAN_OUT signals against external Excel interface definitions.
 
-# High DPI
-> Qt Widgets is an old technology and does not have a good support for high DPI settings, making these images look distorted when your system has DPI applied above 100%.
-You can minimize this problem using a workaround by applying this code below in "main.py" just below the import of the Qt modules.
-```python
-# ADJUST QT FONT DPI FOR HIGHT SCALE
-# ///////////////////////////////////////////////////////////////
-from modules import *
-from widgets import *
-os.environ["QT_FONT_DPI"] = "96"
+## Project structure
+
+```
+Parse/
+├── parsetool.py              # Application entry point
+├── engine/
+│   ├── snapshot_engine.py    # MDF OSC data parser and plotter
+│   ├── crc_engine.py         # CRC-8 / CRC-16 checksum engine
+│   ├── can_matcher.py        # CAN signal matching and DBC→Excel
+│   ├── dbc_reader.py         # DBC file parser
+│   └── config.py             # Project config loader
+├── pages/
+│   ├── home_page.py          # Home screen with feature cards
+│   ├── snapshot_page.py      # Snapshot parsing controls
+│   ├── crc_page.py           # CRC check controls
+│   └── can_page.py           # CAN matcher controls
+├── widgets/
+│   ├── sidebar.py            # Navigation sidebar
+│   └── log_panel.py          # Scrollable log output
+├── config/
+│   ├── nidec.json            # Nidec project signal definitions
+│   ├── lv.json               # GAC LV project
+│   ├── hv.json               # GAC HV project
+│   └── xof.json              # GAC XOF project
+└── theme/
+    └── theme.py              # Catppuccin color scheme and fonts
 ```
 
-# Running
-> Inside your preferred terminal run the commands below depending on your system, remembering before installing Python 3.9> and PySide6 "pip install PySide6".
-> ## **Windows**:
-```console
-python main.py
+## Supported projects
+
+| Project | Config | Signals |
+|---------|--------|---------|
+| A02 Nidec | `config/nidec.json` | 40 OSC signals |
+| GAC LV | `config/lv.json` | 24 OSC signals |
+| GAC HV | `config/hv.json` | 22 OSC signals |
+| GAC XOF | `config/xof.json` | 59 OSC signals |
+
+Add or modify a project by editing the corresponding JSON config file — no code changes needed.
+
+## Requirements
+
+- Python 3.9+
+- tkinter (included with most Python distributions)
+- [asammdf](https://github.com/danielhrisca/asammdf)
+- pandas
+- matplotlib
+- numpy
+- openpyxl
+
+```bash
+pip install asammdf pandas matplotlib numpy openpyxl
 ```
-> ## **MacOS and Linux**:
-```console
-python3 main.py
-```
-# Compiling
-> ## **Windows**:
-```console
-python setup.py build
+
+## Usage
+
+```bash
+python parsetool.py
 ```
 
-# Project Files And Folders
-> **main.py**: application initialization file.
+### Snapshot
 
-> **main.ui**: Qt Designer project.
+1. Select a project type (Nidec / LV / HV / XOF)
+2. Optionally check "Parse bigdata signals"
+3. Click "Select MDF/MF4 File" and pick a log file
+4. Click "Start Parse" — results are exported to Excel; plots open in a separate window
 
-> **resouces.qrc**: Qt Designer resoucers, add here your resources using Qt Designer. Use version 6 >
+### CRC Check
 
-> **setup.py**: cx-Freeze setup to compile your application (configured for Windows).
+1. Select protocol (CAN / CANFD) and CRC algorithm (CRC-8 / CRC-16)
+2. Load a CSV log file
+3. Results show passed/failed status per message
 
-> **themes/**: add here your themes (.qss).
+### CAN Matcher
 
-> **modules/**: module for running PyDracula GUI.
+1. Select a DBC file and an Excel interface file
+2. Choose the target ECU
+3. Run matching to produce aligned CAN_IN / CAN_OUT sheets
 
-> **modules/app_funtions.py**: add your application's functions here.
-Up
-> **modules/app_settings.py**: global variables to configure user interface.
+## Config file format
 
-> **modules/resources_rc.py**: "resource.qrc" file compiled for python using the command: ```pyside6-rcc resources.qrc -o resources_rc.py```.
+Each `config/*.json` defines signal layout and plot groups:
 
-> **modules/ui_functions.py**: add here only functions related to the user interface / GUI.
+```json
+{
+  "data_len": 744,
+  "byte_num_per_frame": 8,
+  "uint8_number": 5,
+  "uint16_number": 3,
+  "uint32_number": 12,
+  "uint8_frame_num": 13,
+  "uint16_frame_num": 25,
+  "real32_frame_num": 50,
+  "len_other": 4,
+  "len_all": 24,
+  "len_uint": 20,
+  "signals": [
+    {"index": 0, "name": "debug5_sthandletoturnoff",
+     "frame_num": 13, "byte_size": 1, "offset": 0, "extra": 1}
+  ],
+  "plot_groups": [
+    {"indices": [5], "ylabel": "转子位置"}
+  ]
+}
+```
 
-> **modules/ui_main.py**: file related to the user interface exported by Qt Designer. You can compile it manually using the command: ```pyside6-uic main.ui> ui_main.py ```.
-After expoting in .py and change the line "import resources_rc" to "from. Resoucers_rc import *" to use as a module.
-
-> **images/**: put all your images and icons here before converting to Python (resources_re.py) ```pyside6-rcc resources.qrc -o resources_rc.py```.
-
-# Projects Created Using PyDracula
-**See the projects that were created using PyDracula.**
-> To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
-**Malicious programs will not be added**!
-
-
-
+- `frame_num` — CAN frames this signal spans per cycle
+- `byte_size` — bytes per data point (1=uint8, 2=uint16, 4=real32)
+- `offset` — calibration offset (raw = raw + offset)
+- `extra` — calibration scale (final = offset + raw × extra) for nidec; secondary offset for others
+- `plot_groups` — which signal indices to plot together in each subplot
