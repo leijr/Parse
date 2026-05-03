@@ -1,0 +1,33 @@
+##为了减少exe文件的容量大小，尽可能的用一个单独的conda环境##
+##为了减少exe文件的容量大小，尽可能的用一个单独的conda环境##
+##为了减少exe文件的容量大小，尽可能的用一个单独的conda环境##
+
+
+1. 安装pyinstaller
+2. cd 进入到主函数所在的目录下
+    eg.  cd E:\PyCharmProject\DCU_Convenient_Tool
+2. Pyinstaller -F -w xxxx.py
+    eg.Pyinstaller -F -w DCU_Convenient_Tool.py
+   -F 表示每次执行打包命令时都会覆盖原来的文件 勾上就对了
+   -w 表示每次打开生成的exe文件不会弹出控制台（黑框界面）
+   -xxxx.py 表示主函数
+3.生成完exe自动保存在同目录下的dist文件夹内。
+
+
+如果生成后打开exe报错，则检查用到的库文件的版本号是否过高或过低。
+！！！！！！！！！如果脚本不自动跳出来图片，请检查matplotlib版本是不是太高，经测试3.5.0是OK的版本
+！！！！！！！！！如果脚本不自动跳出来图片，请检查matplotlib版本是不是太高，经测试3.5.0是OK的版本
+！！！！！！！！！如果脚本不自动跳出来图片，请检查matplotlib版本是不是太高，经测试3.5.0是OK的版本
+
+
+
+从designer里面更新界面后：：：：
+ 1.从designer界面里面的窗体-> View Python Code -> 复制
+ 2.把modules里面的ui_main.py文件内容全部删除并替换成step1 里面复制的内容
+ 3.cd E:\PyCharmProject\DCU_Convenient_Tool 然后运行下面的命令
+      pyside6-rcc resources.qrc -o resources_rc.py
+      从而生成新的resources_rc.py文件 （观测该文件的更新时间看有没有更新成功）
+ 4. 把上述新的resources_rc.py文件替换到modules文件夹里的resources_rc.py文件
+
+
+

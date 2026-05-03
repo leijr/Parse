@@ -1,0 +1,13 @@
+__pycache__/
+.git/
+*.pyc
+*.pyo
+build/
+dist/
+*.7z
+*.exe
+*.mdf
+*.xlsx
+*.GIF
+.idea/
+*.spec

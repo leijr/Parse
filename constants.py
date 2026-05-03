@@ -1,0 +1,14 @@
+# Frame constants
+BYTES_PER_FRAME_NIDEC = 32
+BYTES_PER_FRAME_STANDARD = 8
+CANFD_MSG_LEN_BYTES = 64
+CAN_MSG_LEN_BYTES = 8
+
+# CRC constants
+CANFD_HEX_CHARS = 128  # 64 bytes * 2 hex chars
+CAN_HEX_CHARS = 16     # 8 bytes * 2 hex chars
+
+# Snapshot constants
+MAX_CYCLES = 20
+POINTS_PER_CYCLE = 100
+CURRENT_OFFSET = -2048
